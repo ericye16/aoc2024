@@ -79,10 +79,14 @@ def get_sections(inp):
                         to_explore.append((x0, y0))
                     else:
                         section.perimeter += 1
-                        if curx == x0:
-                            dir = "V"
+                        if y0 > cury:
+                            dir = "D"
+                        elif y0 < cury:
+                            dir = "U"
+                        elif x0 > curx:
+                            dir = "L"
                         else:
-                            dir = "H"
+                            dir = "R"
                         edges.add((dir, max(curx, x0), max(cury, y0)))
 
                 nextx, nexty = xx + 1, yy
