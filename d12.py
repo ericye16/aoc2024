@@ -65,7 +65,7 @@ def get_sections(inp):
             garden_section = inp[x][y]
             section = Section(garden_section, 0, 0, 0)
             to_explore = [(x, y)]
-            edges = set()
+            corners = set()
             while to_explore:
                 xx, yy = to_explore.pop()
                 if done[xx][yy]:
@@ -77,142 +77,22 @@ def get_sections(inp):
                     # nonlocal perimeter
                     if in_bounds(x0, y0, xd, yd) and inp[x0][y0] == garden_section:
                         to_explore.append((x0, y0))
+                        return 1
                     else:
                         section.perimeter += 1
-                        if y0 > cury:
-                            dir = "D"
-                        elif y0 < cury:
-                            dir = "U"
-                        elif x0 > curx:
-                            dir = "L"
-                        else:
-                            dir = "R"
-                        edges.add((dir, max(curx, x0), max(cury, y0)))
+                        return 0
 
+                valid_edges = 0
                 nextx, nexty = xx + 1, yy
-                check_next(xx, yy, nextx, nexty)
+                valid_edges += check_next(xx, yy, nextx, nexty)
                 nextx, nexty = xx, yy + 1
-                check_next(xx, yy, nextx, nexty)
+                valid_edges += check_next(xx, yy, nextx, nexty)
                 nextx, nexty = xx - 1, yy
-                check_next(xx, yy, nextx, nexty)
+                valid_edges += check_next(xx, yy, nextx, nexty)
                 nextx, nexty = xx, yy - 1
-                check_next(xx, yy, nextx, nexty)
+                valid_edges += check_next(xx, yy, nextx, nexty)
 
-            if True:
-                print(f"Section {garden_section}")
-                for x0 in range(xd + 1):
-                    for y0 in range(yd + 1):
-                        if ("H", x0, y0) in edges and ("V", x0, y0) in edges:
-                            print("┌", end="")
-                        elif ("H", x0, y0) in edges:
-                            print("─", end="")
-                        elif ("V", x0, y0) in edges:
-                            print("│", end="")
-                        else:
-                            print(".", end="")
-                    print("")
-                
 
-            def find_edge(nedge, edges):
-                if nedge in edges:
-                    edges.remove(nedge)
-                    return True
-                else:
-                    return False
-
-            edge1 = None
-            sides = 0
-
-            while edges:
-                if edge1 is None:
-                    edge1 = edges.pop()
-                    if edge1[0] == "H":
-                        if ("H", edge1[1], edge1[2] + 1) in edges and (
-                            "H",
-                            edge1[1],
-                            edge1[2] - 1,
-                        ) in edges:
-                            sides += 0
-                        else:
-                            sides += 1
-                    else:
-                        assert edge1[0] == "V"
-                        if ("V", edge1[1] + 1, edge1[2]) in edges and (
-                            "V",
-                            edge1[1] - 1,
-                            edge1[2],
-                        ) in edges:
-                            sides += 0
-                        else:
-                            sides += 1
-                if edge1[0] == "H":
-                    nedge = ("H", edge1[1], edge1[2] + 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("H", edge1[1], edge1[2] - 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    # not
-                    sides += 1
-                    nedge = ("V", edge1[1] - 1, edge1[2])
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("V", edge1[1], edge1[2])
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("V", edge1[1] - 1, edge1[2] + 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("V", edge1[1], edge1[2] + 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    sides -= 1
-                    edge1 = None
-                    # print(edge1)
-                    # print(edges)
-                    # raise ValueError("uhhh")
-                else:
-                    assert edge1[0] == "V"
-                    nedge = ("V", edge1[1] + 1, edge1[2])
-                    if nedge in edges:
-                        edges.remove(nedge)
-                        edge1 = nedge
-                        continue
-                    nedge = ("V", edge1[1] - 1, edge1[2])
-                    if nedge in edges:
-                        edges.remove(nedge)
-                        edge1 = nedge
-                        continue
-                    sides += 1
-                    nedge = ("H", edge1[1], edge1[2] - 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("H", edge1[1], edge1[2])
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("H", edge1[1] + 1, edge1[2] - 1)
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    nedge = ("H", edge1[1] + 1, edge1[2])
-                    if find_edge(nedge, edges):
-                        edge1 = nedge
-                        continue
-                    sides -= 1
-                    edge1 = None
-                    # print(edge1)
-                    # print(edges)
-                    # raise ValueError("fdsfds")
-            section.sides = sides
-            print(f"Sides: {sides}")
             sections.append(section)
     return sections
 
