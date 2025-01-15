@@ -66,7 +66,9 @@ def print_map(map: list[list[str]], moved: list[Vec2] = None, dir = None, has_mo
     for xi, x in enumerate(map):
         for yi, y in enumerate(x):
             if has_moved and Vec2(xi, yi) - dir in moved:
-                y = f"\033[5m{y}\033[0m"
+                y = f"\033[7m{y}\033[0m"
+            if y == "@" and not has_moved:
+                y = f"\033[41m{y}\033[0m"
             print(y, end="")
         print()
 
@@ -143,6 +145,7 @@ ex3 = """#######
 <vv<<^^<<^^"""
 
 from collections import deque
+import time
 do_prints = True
 def run2(map: list[list[str]], insts: str) -> list[list[str]]:
     robot_loc = None
@@ -158,7 +161,7 @@ def run2(map: list[list[str]], insts: str) -> list[list[str]]:
     if do_prints:
         print_map(map)
     dirs = {"<": Vec2(0, -1), "v": Vec2(1, 0), ">": Vec2(0, 1), "^": Vec2(-1, 0)}
-    for instr in insts:
+    for instr_i, instr in enumerate(insts):
         dirupdown = instr == "^" or instr == "v"
         dir = dirs[instr]
         cursor = robot_loc
@@ -194,8 +197,10 @@ def run2(map: list[list[str]], insts: str) -> list[list[str]]:
                 # map[robot_loc.x][robot_loc.y] = "."
             robot_loc += dir
         if do_prints:
-            print(instr)
+            print("\033c", end="")
+            print(f"{instr} {instr_i + 1} / {len(insts)}")
             print_map(map, to_move, dir, can_move)
+            time.sleep(0.01)
     return map
 
 def calc2_gps(map: list[list[str]]) -> int:
@@ -208,7 +213,7 @@ def calc2_gps(map: list[list[str]]) -> int:
 # print(calc_gps(run1(*parse(ex2))))
 r = open("d15.txt").read()
 # print(calc_gps(run1(*parse(r))))
-ma, insts = parse(ex2)
+ma, insts = parse(ex1)
 ma2 = expand_map(ma)
 out2 = run2(ma2, insts)
 print(calc2_gps(out2))
